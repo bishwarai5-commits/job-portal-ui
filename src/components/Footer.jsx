@@ -1,8 +1,65 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
+const POLICIES = {
+  privacy: {
+    label: "Privacy Policy",
+    to: "/privacy-policy",
+    sections: [
+      { title: "Information We Collect", body: "Name, email, profile details, job applications, and contact form messages." },
+      { title: "How We Use It", body: "To authenticate accounts, match job listings, and send updates. We never sell your data." },
+      { title: "Data Storage", body: "All data stays in your browser's localStorage — nothing is sent to an external server." },
+      { title: "Your Rights", body: "Access, correct, or delete your data anytime from the Profile page or by contacting us." },
+    ],
+  },
+  terms: {
+    label: "Terms of Service",
+    to: "/terms-of-service",
+    sections: [
+      { title: "Acceptance", body: "By using JobPortal, you agree to these terms." },
+      { title: "Platform Use", body: "Provide accurate info, keep credentials secure, post only genuine jobs, and no automated scraping." },
+      { title: "Intellectual Property", body: "All content and branding belongs to JobPortal and may not be reproduced without permission." },
+      { title: "Liability", body: "JobPortal is provided as-is. We are not liable for employment outcomes or data loss." },
+    ],
+  },
+  cookies: {
+    label: "Cookie Policy",
+    to: "/cookie-policy",
+    sections: [
+      { title: "What Are Cookies?", body: "Small text files stored on your device to remember preferences and keep you logged in." },
+      { title: "Essential", body: "Auth tokens and session data (jobPortalUser, authToken) — required for the site to work." },
+      { title: "Preferences", body: "Your chosen theme (light/dark), saved jobs, and applied job history." },
+      { title: "Analytics", body: "Aggregated, anonymous data on page visits to help us improve the site." },
+      { title: "Managing Cookies", body: "Control via browser settings. Clearing localStorage removes your saved preferences." },
+    ],
+  },
+};
+
+const PolicyTooltip = ({ policy }) => (
+  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 w-72 z-50 pointer-events-none">
+    <div className="bg-gray-800 border border-gray-600 rounded-xl shadow-2xl p-4 max-h-64 overflow-y-auto">
+      <h3 className="text-sm font-bold bg-gradient-to-r from-primary-400 to-purple-400 bg-clip-text text-transparent mb-3">
+        {policy.label}
+      </h3>
+      <div className="space-y-2.5">
+        {policy.sections.map(({ title, body }) => (
+          <div key={title}>
+            <p className="text-xs font-semibold text-gray-200 mb-0.5">{title}</p>
+            <p className="text-xs text-gray-400 leading-relaxed">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 text-xs text-primary-400 font-medium">Click to read full policy →</p>
+    </div>
+    <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-gray-600"></div>
+  </div>
+);
+
 const Footer = () => {
+  const [activePolicy, setActivePolicy] = useState(null);
+
   return (
-    <footer className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
+    <footer className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-0 left-1/3 w-96 h-96 bg-gradient-to-br from-primary-600/10 to-purple-600/10 rounded-full blur-3xl"></div>
@@ -141,18 +198,23 @@ const Footer = () => {
 
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex flex-wrap justify-center md:justify-start gap-6 text-sm text-gray-400 mb-6 md:mb-0">
-              <a className="group relative hover:text-white transition-colors duration-300">
-                <span className="relative z-10">Privacy Policy</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-purple-600/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -inset-2"></div>
-              </a>
-              <a className="group relative hover:text-white transition-colors duration-300">
-                <span className="relative z-10">Terms of Service</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-purple-600/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -inset-2"></div>
-              </a>
-              <a className="group relative hover:text-white transition-colors duration-300">
-                <span className="relative z-10">Cookie Policy</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-purple-600/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -inset-2"></div>
-              </a>
+              {Object.entries(POLICIES).map(([key, policy]) => (
+                <div
+                  key={key}
+                  className="relative"
+                  onMouseEnter={() => setActivePolicy(key)}
+                  onMouseLeave={() => setActivePolicy(null)}
+                >
+                  {activePolicy === key && <PolicyTooltip policy={policy} />}
+                  <Link
+                    to={policy.to}
+                    className="group relative hover:text-white transition-colors duration-300"
+                  >
+                    <span className="relative z-10">{policy.label}</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-purple-600/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -inset-2"></div>
+                  </Link>
+                </div>
+              ))}
               <Link
                 to="/contact"
                 className="group relative hover:text-white transition-colors duration-300"
